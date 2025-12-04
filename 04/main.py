@@ -22,7 +22,7 @@ input = np.array([
         1 if c == '@' else 0
         for c in line
     ]
-    for line in example.splitlines()
+    for line in from_file.splitlines()
 ])
 
 conv = np.array([
@@ -39,8 +39,10 @@ state = input
 while last_count != count:
     last_count = count
     
-    accessible = signal.convolve2d(input, conv, mode = 'same') < 4 * input
+    accessible = (signal.convolve2d(state, conv, mode = 'same') < 4 * state).astype(int)
     
-    print(accessible)
     count += sum(sum(accessible))
-    state = state and accessible.negate()
+    state = state - accessible.astype(int)
+
+print(state)
+print(count)
