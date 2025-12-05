@@ -32,18 +32,16 @@ intervals = [
 
 intervals.sort()
 
-bound = -1
+last_end = -1
 
 count = 0
 
 for (low, high) in intervals:
-    n = max(0, bound - low)
-
-    print(f"{bound} : {low} - {high} (remove {n})")
+    actual_start = max(low, last_end + 1)
     
-    count += (high - low + 1) - n
-
-    bound = max(high, bound) + 1
-
-
+    if actual_start <= high:
+        interval_count = high - actual_start + 1
+        count += interval_count
+        last_end = high
+    
 print(count)
