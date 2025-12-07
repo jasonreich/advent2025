@@ -1,4 +1,5 @@
-import enum
+import numpy as np
+
 example = """
 .......S.......
 ...............
@@ -23,25 +24,25 @@ with open("07/input.txt") as f:
 
 input = from_file.splitlines()
 
-def matching_postions(match: str, lst: list[str]) -> set[int]:
-    return set([
-        i
-        for i, v in enumerate(lst)
-        if v == match
-    ])
-
-splits = 0
-rays = set()
+rays = np.array([])
 for row in input:
-    splitters = matching_postions('^', row)
-    hit = splitters.intersection(rays)
+    if 'S' in row:
+        rays = np.array([
+            1 if c == 'S' else 0
+            for c in row
+        ])
+    else:
+        splitters = np.array([
+            1 if c == '^' else 0
+            for c in row
+        ])
+        
+        next = np.convolve(
+            splitters * rays, [1, 0, 1], 'same'
+        )
+        
+        next += ((1 - splitters) * rays)
+        
+        rays = next
     
-    splits += len(hit)
-    rays.difference_update(hit)
-    rays.update(map(lambda i: i-1, hit))
-    rays.update(map(lambda i: i +1, hit))
-    
-    # Add Ses
-    rays.update(matching_postions('S', row))
-    
-print(splits)
+print(sum(rays))
