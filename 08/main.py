@@ -1,3 +1,4 @@
+from doctest import UnexpectedException
 from math import sqrt
 from typing import Optional
 
@@ -47,9 +48,13 @@ with_distance: list[tuple[float, coord, coord]] = [
 
 with_distance.sort()
 
-circuits: list[set[coord]] = []
 
-for [d, c0, c1] in with_distance[0:1000]:
+circuits: list[set[coord]] = [
+    set([box])
+    for box in input
+]
+
+for [d, c0, c1] in with_distance:
     if any(map(lambda circuit: c0 in circuit and c1 in circuit, circuits)):
         # Already connected
         pass
@@ -65,11 +70,15 @@ for [d, c0, c1] in with_distance[0:1000]:
             c0_circuit.update(c1_circuit)
             circuits.remove(c1_circuit)
         else:
-            circuits.append(set([c0, c1]))
+            raise RuntimeError("Expected all JBs to be present")
+        
+        if len(circuits) == 1:
+            print(c0[0] * c1[0])
+            break
         
 
-sizes = list(map(len, circuits))
-sizes.sort(reverse=True)
-print(sizes)
-[l0, l1, l2] = sizes[0:3]
-print(l0 * l1 * l2)
+# sizes = list(map(len, circuits))
+# sizes.sort(reverse=True)
+# print(sizes)
+# [l0, l1, l2] = sizes[0:3]
+# print(l0 * l1 * l2)
