@@ -1,6 +1,4 @@
-from PIL.Image import enum
-from scipy.spatial import ConvexHull
-from matplotlib.path import Path
+from shapely.geometry import Point, Polygon
 
 example = """
 7,1
@@ -24,19 +22,17 @@ input: list[coord] = [
     for [x, y] in [line.split(',')]
 ]
 
-hull = ConvexHull(input)
-path_obj = Path(hull.points[hull.vertices])
+hull = Polygon(input)
 
 areas = [
     (abs(y1-y0) + 1) * (abs(x1 - x0) + 1)
     for i, (x0, y0) in enumerate(input)
     for (x1, y1) in input[i+1:]
-    if path_obj.contains_path(Path([
+    if hull.covers(Polygon([
         (min(x0, x1), min(y0,y1)),
         (min(x0, x1), max(y0,y1)),
         (max(x0, x1), max(y0,y1)),
         (max(x0, x1), min(y0,y1)),
-        (min(x0, x1), min(y0,y1)),
     ]))
 ]
 
