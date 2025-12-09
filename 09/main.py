@@ -32,11 +32,11 @@ areas = [
     for i, (x0, y0) in enumerate(input)
     for (x1, y1) in input[i+1:]
     if path_obj.contains_path(Path([
-        (x0, y0),
-        (x0, y1),
-        (x1, y1), 
-        (x1, y0),
-        (x0, y0),
+        (min(x0, x1), min(y0,y1)),
+        (min(x0, x1), max(y0,y1)),
+        (max(x0, x1), max(y0,y1)),
+        (max(x0, x1), min(y0,y1)),
+        (min(x0, x1), min(y0,y1)),
     ]))
 ]
 
