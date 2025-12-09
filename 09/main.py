@@ -1,3 +1,6 @@
+from scipy.spatial import ConvexHull
+from matplotlib.path import Path
+
 example = """
 7,1
 11,1
@@ -20,31 +23,52 @@ input: list[coord] = [
     for [x, y] in [line.split(',')]
 ]
 
-hull: list[tuple[coord, coord]] = [
-    ((min(x0, x1), min(y0, y1)), (max(x0, x1), max(y0, y1)))
-    for i, (x0, y0) in enumerate(input)
-    for (x1, y1) in input[i+1:]
-    if x0 == x1 or y0 == y1
-]
+hull = ConvexHull(input)
+path_obj = Path(hull.points[hull.vertices])
 
-def is_in(x, y, hull) -> bool:
-    return any([
-        (x0 <= x <= x1) and (y0 <= y <= y1)
-        for ((x0, y0), (x1, y1)) in hull
-    ])
+lower_x = min([ x for (x, _) in input ])
+lower_y = min([ y for (_, y) in input ])
+upper_x = max([ x for (x, _) in input ])
+upper_y = max([ y for (_, y) in input ])
 
-print('\n'.join([
-    ''.join([
-        'X' if is_in(x, y, hull) else '.'
-        for x in range(0, 14)
-    ])
-    for y in range(0, 9)
-]))
+mid_x = (upper_x - lower_x) // 2
+mid_y = (upper_y - lower_y) // 2
 
-areas = [
-    (abs(y1-y0) + 1) * (abs(x1 - x0) + 1)
-    for i, (x0, y0) in enumerate(input)
-    for (x1, y1) in input[i+1:]
-]
+x0 = mid_x
+x1 = mid_x
+y0 = mid_y
+y1 = mid_y
 
-print(max(areas))
+while True:
+    if path_obj.contains_path(Path([(x0 - 1, y0), (x0 - 1, y1), (x1, y1), (x1, y0), (x0)])):
+        x0 -= 1
+    elif path_obj.contains_path(Path([(x0, y0 - 1), (x0, y1), (x1, y1), (x1, y0 - 1)])):
+        y0 -= 1
+    elif path_obj.contains_path(Path([(x0, y0), (x0, y1), (x1 + 1, y1), (x1 + 1, y0)])):
+        x1 += 1
+    elif path_obj.contains_path(Path([(x0, y0), (x0, y1 + 1), (x1, y1 + 1), (x1, y0)])):
+        y1 += 1
+    else:
+        print((x0, y0), (x1, y1))
+        print((abs(y1-y0) + 1) * (abs(x1 - x0) + 1))
+        break
+    
+
+# areas = [
+#     (abs(y1-y0) + 1) * (abs(x1 - x0) + 1)
+#     for x0 in range(lower_x, upper_x + 1)
+#     for y0 in range(lower_y, upper_y + 1)
+#     if path_obj.contains_point((x0, y0))
+#     for x1 in range(x0, upper_x + 1)
+#     if path_obj.contains_point((x0, y0))
+#     if path_obj.contains_point((x1, y0))
+#     for y1 in range(y0, upper_y + 1)
+#     if path_obj.contains_path(Path([
+#         (x0, y0),
+#         (x0, y1),
+#         (x1, y1), 
+#         (x1, y0)
+#     ]))
+# ]
+
+# print(max(areas))
