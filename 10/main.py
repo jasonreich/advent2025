@@ -67,15 +67,3 @@ print(sum([
     for line in from_file.splitlines()
 ]))
 
-# x = LpVariable("x", 0, 3)
-# y = LpVariable("y", cat="Binary")
-
-# prob = LpProblem("myProblem", LpMinimize)
-
-# prob += x + y <= 2
-# prob += -4*x + y
-
-
-# status = prob.solve(PULP_CBC_CMD(msg=0))
-# print(LpStatus[status])
-# print(x.value())
