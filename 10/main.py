@@ -26,19 +26,23 @@ def parse_line(line: str) -> Problem:
             for button in buttons_input.split(' (')
             if button != ''
         ]
-        return (indicators, buttons, [])
+        joltages = [
+            int(j)
+            for j in joltage_input.split(',')
+        ]
+        return (indicators, buttons, joltages)
     else:
         raise RuntimeError("Could not parse")
     
 def solve(problem: Problem) -> int:
-    (indicator_final, button_config, _) = problem
+    (indicator_final, button_config, joltages_final) = problem
     
-    on_offs = LpVariable.dict(
-        "on_offs",
-        range(len(indicator_final)),
-        lowBound=0,
-        cat = 'Integer'
-    )
+    # on_offs = LpVariable.dict(
+    #     "on_offs",
+    #     range(len(indicator_final)),
+    #     lowBound=0,
+    #     cat = 'Integer'
+    # )
     
     button_presses = LpVariable.dict(
         "button_presses", 
@@ -49,12 +53,12 @@ def solve(problem: Problem) -> int:
     
     prob = LpProblem("AdventProblem", LpMinimize)
     
-    for i, state in enumerate(indicator_final):
+    for i, state in enumerate(joltages_final):
         prob += sum([
             button_presses[j]
             for j, bc in enumerate(button_config)
             if i in bc
-        ]) == state + 2 * on_offs[i]
+        ]) == state
         
     prob += sum([ button_presses[j] for j in range(len(button_config)) ])
     
