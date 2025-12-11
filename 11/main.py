@@ -1,3 +1,4 @@
+from functools import lru_cache
 import networkx as nx
 
 example = """
@@ -22,7 +23,7 @@ with open("11/input.txt") as f:
 
 input = [
     (parts[0], parts[1].split(' '))
-    for line in example.splitlines()
+    for line in from_file.splitlines()
     for parts in [line.split(": ")]
 ]
 
@@ -33,9 +34,17 @@ for (src, dsts) in input:
         G.add_edge(src, dst)
 
 def count_paths(src, dst):
-    return sum([
-        1 for path in nx.all_simple_paths(G, source=src, target=dst)
-    ])
+    @lru_cache()
+    def dfs(current):
+        if current == dst:
+            return 1
+        
+        return sum([
+            dfs(neighbor) for neighbor in G.successors(current)
+        ])
+    return dfs(src)
 
-
-print(count_paths("svr", "fft") * count_paths("fft", "dac") * count_paths("dac", "out"))
+dac_out = count_paths("dac", "out")
+ffs_dac = count_paths("fft", "dac")
+svr_fft = count_paths("svr", "fft")
+print(dac_out * ffs_dac * svr_fft)
